@@ -1,0 +1,85 @@
+/* style.css */
+
+/* Set a background color for the body */
+body {
+    background-color: #f8f9fa;
+    font-family: Arial, sans-serif;
+}
+
+/* Style the main container */
+.container {
+    max-width: 800px;
+    margin-top: 40px;
+    padding: 20px;
+    background: #ffffff;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+}
+
+/* Header styling */
+h1 {
+    color: #007bff;
+    text-align: center;
+    font-weight: bold;
+    margin-bottom: 30px;
+}
+
+/* Table styling */
+.table {
+    background: #ffffff;
+    border-radius: 5px;
+}
+
+.table th {
+    background-color: #007bff;
+    color: white;
+}
+
+.table td, .table th {
+    text-align: center;
+    vertical-align: middle;
+}
+
+/* Button styling */
+.btn-primary {
+    background-color: #007bff;
+    border-color: #007bff;
+}
+
+.btn-danger {
+    background-color: #dc3545;
+    border-color: #dc3545;
+}
+
+.btn:hover {
+    opacity: 0.9;
+}
+
+/* Form styling */
+.form-label {
+    font-weight: bold;
+}
+
+input[type="text"] {
+    border-radius: 4px;
+}
+
+/* Expiration warning section styling */
+.list-group-item-warning {
+    background-color: #fff3cd;
+    color: #856404;
+    font-weight: bold;
+}
+
+/* Alert message styling */
+.alert-success {
+    color: #155724;
+    background-color: #d4edda;
+    border-color: #c3e6cb;
+}
+
+.alert-danger {
+    color: #721c24;
+    background-color: #f8d7da;
+    border-color: #f5c6cb;
+}
