@@ -1,9 +1,12 @@
 from flask import Flask, render_template, request, redirect, url_for, flash
 import sqlite3
-from datetime import datetime, timedelta
+from datetime import datetime
+import cv2
+from pyzbar.pyzbar import decode
+import numpy as np
 
 app = Flask(__name__)
-app.secret_key = "supersecretkey"  # Required for flash messages
+app.secret_key = "supersecretkey"
 DB_PATH = "food_expiration.db"
 
 # Database setup function
@@ -11,9 +14,9 @@ def setup_database():
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
     cursor.execute('''CREATE TABLE IF NOT EXISTS food_items (
-                        id INTEGER PRIMARY KEY AUTOINCREMENT,
-                        name TEXT NOT NULL,
-                        expiration_date TEXT NOT NULL)''')
+                       id INTEGER PRIMARY KEY AUTOINCREMENT,
+                       name TEXT NOT NULL,
+                       expiration_date TEXT NOT NULL)''')
     conn.commit()
     conn.close()
 
@@ -67,6 +70,31 @@ def delete_item(item_id):
     flash("Item removed successfully.", "success")
     return redirect(url_for('index'))
 
+# Route to upload a barcode image
+@app.route('/upload_barcode', methods=['POST'])
+def upload_barcode():
+    if 'barcode_image' not in request.files:
+        flash("No file selected for uploading", "danger")
+        return redirect(url_for('index'))
+    
+    file = request.files['barcode_image']
+    if file.filename == '':
+        flash("No file selected", "danger")
+        return redirect(url_for('index'))
+    
+    # Read the image file and decode it
+    file_bytes = np.frombuffer(file.read(), np.uint8)
+    img = cv2.imdecode(file_bytes, cv2.IMREAD_COLOR)
+    barcodes = decode(img)
+
+    if barcodes:
+        barcode_data = barcodes[0].data.decode('utf-8')
+        flash(f"Scanned item: {barcode_data}. Please enter expiration date manually.", "info")
+    else:
+        flash("No barcode detected in uploaded image.", "danger")
+    
+    return redirect(url_for('index'))
+
 if __name__ == '__main__':
     setup_database()
-    app.run(host="0.0.0.0", port=4000)
+    app.run(host="0.0.0.0", port=5001)
