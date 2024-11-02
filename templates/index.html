@@ -5,11 +5,13 @@
     <title>Food Expiration Tracker</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="{{ url_for('static', filename='style.css') }}" rel="stylesheet">  <!-- Link to custom CSS -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script> <!-- jQuery for AJAX -->
 </head>
 <body>
     <div class="container mt-5">
         <h1>Food Expiration Tracker</h1>
-        
+
+        <!-- Flash messages handling -->
         {% with messages = get_flashed_messages(with_categories=true) %}
             {% if messages %}
                 {% for category, message in messages %}
@@ -17,7 +19,8 @@
                 {% endfor %}
             {% endif %}
         {% endwith %}
-        
+
+        <!-- Add New Food Item Form -->
         <h3>Add New Food Item</h3>
         <form action="{{ url_for('add_item') }}" method="POST" class="mb-4">
             <div class="mb-3">
@@ -31,6 +34,7 @@
             <button type="submit" class="btn btn-primary">Add Item</button>
         </form>
 
+        <!-- Items in Database Table -->
         <h3>Items in Database</h3>
         <table class="table table-bordered">
             <thead>
@@ -52,7 +56,8 @@
                 {% endfor %}
             </tbody>
         </table>
-        
+
+        <!-- Expiration Warnings -->
         {% if notifications %}
             <h4 class="mt-4">Expiration Warnings</h4>
             <ul class="list-group">
@@ -61,6 +66,79 @@
                 {% endfor %}
             </ul>
         {% endif %}
+
+        <!-- Recipe Suggestions Form -->
+        <h2>Get Recipe Suggestions</h2>
+        <form id="ingredients-form" class="mb-4">
+            <div class="mb-3">
+                <label for="ingredients" class="form-label">Enter Ingredients (comma separated):</label>
+                <input type="text" id="ingredients" class="form-control" required>
+            </div>
+            <button type="submit" class="btn btn-secondary">Get Recipes</button>
+        </form>
+
+        <div id="recipe-suggestions"></div>
+        <div id="recipe-info"></div> <!-- Section to display detailed recipe information -->
+
     </div>
+
+    <script>
+        $(document).ready(function() {
+            $('#ingredients-form').on('submit', function(e) {
+                e.preventDefault(); // Prevent default form submission
+                const ingredients = $('#ingredients').val();
+                const apiKey = '769c0353b2ba49558879cd467d54f0a2'; 
+                
+                $.ajax({
+                    url: `https://api.spoonacular.com/recipes/findByIngredients?ingredients=${encodeURIComponent(ingredients)}&apiKey=${apiKey}`,
+                    method: 'GET',
+                    success: function(data) {
+                        $('#recipe-suggestions').empty(); // Clear previous suggestions
+                        if (data.length > 0) {
+                            let suggestionsHtml = '<h4>Recipe Suggestions:</h4><ul class="list-group">';
+                            data.forEach(function(recipe) {
+                                suggestionsHtml += `<li class="list-group-item recipe-item" data-id="${recipe.id}"><a href="#">${recipe.title}</a></li>`;
+                            });
+                            suggestionsHtml += '</ul>';
+                            $('#recipe-suggestions').html(suggestionsHtml);
+                        } else {
+                            $('#recipe-suggestions').html('<p>No recipes found.</p>');
+                        }
+                    },
+                    error: function() {
+                        $('#recipe-suggestions').html('<p>Error fetching recipes.</p>');
+                    }
+                });
+            });
+
+            // Fetch detailed recipe information on click
+            $(document).on('click', '.recipe-item a', function(e) {
+                e.preventDefault(); // Prevent default anchor behavior
+                const recipeId = $(this).parent().data('id'); // Get recipe ID from data attribute
+
+                $.ajax({
+                    url: `https://api.spoonacular.com/recipes/${recipeId}/information?includeNutrition=true&apiKey=769c0353b2ba49558879cd467d54f0a2`,
+                    method: 'GET',
+                    success: function(recipe) {
+                        let recipeHtml = `
+                            <h4>${recipe.title}</h4>
+                            <p><strong>Summary:</strong> ${recipe.summary}</p>
+                            <p><strong>Ready in:</strong> ${recipe.readyInMinutes} minutes</p>
+                            <h5>Ingredients:</h5>
+                            <ul>`;
+                        recipe.extendedIngredients.forEach(function(ingredient) {
+                            recipeHtml += `<li>${ingredient.original}</li>`;
+                        });
+                        recipeHtml += '</ul>';
+                        recipeHtml += `<p><a href="${recipe.sourceUrl}" target="_blank" class="btn btn-primary">View Full Recipe</a></p>`;
+                        $('#recipe-info').html(recipeHtml); // Display detailed recipe info
+                    },
+                    error: function() {
+                        $('#recipe-info').html('<p>Error fetching recipe details.</p>');
+                    }
+                });
+            });
+        });
+    </script>
 </body>
 </html>

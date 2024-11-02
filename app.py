@@ -1,6 +1,7 @@
 from flask import Flask, render_template, request, redirect, url_for, flash
 import sqlite3
-from datetime import datetime, timedelta
+from datetime import datetime
+import requests
 
 app = Flask(__name__)
 app.secret_key = "supersecretkey"  # Required for flash messages
@@ -67,6 +68,46 @@ def delete_item(item_id):
     flash("Item removed successfully.", "success")
     return redirect(url_for('index'))
 
+# Make API requests
+API_KEY = "769c0353b2ba49558879cd467d54f0a2"  
+
+@app.route('/suggest_recipes')
+def suggest_recipes():
+    # Fetch items from the database
+    conn = sqlite3.connect(DB_PATH)
+    cursor = conn.cursor()
+    cursor.execute("SELECT name FROM food_items")
+    items = cursor.fetchall()
+    conn.close()
+
+    # Collect ingredients and format them for the API request
+    ingredients = ",".join([item[0] for item in items])
+
+    # Fetch recipes from Spoonacular API
+    url = f"https://api.spoonacular.com/recipes/findByIngredients?ingredients={ingredients}&number=5&apiKey={API_KEY}"
+    try:
+        response = requests.get(url)
+        response.raise_for_status()
+        recipes = response.json()
+    except requests.exceptions.RequestException as e:
+        flash(f"Error fetching recipes: {e}", "danger")
+        recipes = []
+
+    return render_template('recipes.html', recipes=recipes)
+
+@app.route('/recipe/<int:recipe_id>')
+def recipe_info(recipe_id):
+    url = f"https://api.spoonacular.com/recipes/{recipe_id}/information?includeNutrition=true&apiKey={API_KEY}"
+    try:
+        response = requests.get(url)
+        response.raise_for_status()  # Raise an error for bad responses
+        recipe_details = response.json()
+        return render_template('recipe_info.html', recipe=recipe_details)
+    except requests.exceptions.RequestException as e:
+        flash(f"Error fetching recipe details: {e}", "danger")
+        return redirect(url_for('index'))  # Redirect to index on error
+
+
 if __name__ == '__main__':
     setup_database()
-    app.run(host="0.0.0.0", port=4000)
+    app.run(host="0.0.0.0", port=9000, debug=True)

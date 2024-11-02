@@ -1,0 +1,10 @@
+<!-- In recipes.html -->
+<h4>Recipe Suggestions:</h4>
+<ul class="list-group">
+    {% for recipe in recipes %}
+        <li class="list-group-item">
+            <a href="{{ recipe.sourceUrl }}" target="_blank">{{ recipe.title }}</a>
+            <a href="{{ url_for('recipe_info', recipe_id=recipe.id) }}" class="btn btn-info btn-sm">View Details</a>
+        </li>
+    {% endfor %}
+</ul>
