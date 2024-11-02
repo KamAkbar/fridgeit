@@ -3,7 +3,7 @@ Fresh food and AI prepped meals
 
 # FridgeIt
 
-**FridgeIt** is a web application designed to help users keep track of their food's expiration dates, reducing waste and making meal planning easier. With both manual entry and scanning options, FridgeIt sends timely notifications to ensure you never miss a chance to enjoy your food before it spoils.
+Household food waste accounts for 40 to 50 percent of all food wasted in the United States—according to the EPA, this amounts to about 26.5 million tons of food waste every year. **FridgeIt** is a web application designed to help users keep track of their food's expiration dates, reducing waste and making meal planning easier. With both manual entry and scanning options, FridgeIt sends timely notifications to ensure you never miss a chance to enjoy your food before it spoils.
 
 ## Features
 
