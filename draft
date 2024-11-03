@@ -1,48 +1,48 @@
-import tkinter as tk
-from tkinter import messagebox
-import sqlite3
-from datetime import datetime
-import requests
+# import tkinter as tk
+# from tkinter import messagebox
+# import sqlite3
+# from datetime import datetime
+# import requests
 
-DB_PATH = "food_expiration.db"
-SPOONACULAR_API_KEY = "c53a19c4044b4a5cbc669a1dc6efa85e"
+# DB_PATH = "food_expiration.db"
+# SPOONACULAR_API_KEY = "c53a19c4044b4a5cbc669a1dc6efa85e"
 
-# Database setup and app class here...
+# # Database setup and app class here...
 
-class FoodExpirationApp:
-    # Your existing methods like __init__, add_food_item, etc.
+# class FoodExpirationApp:
+#     # Your existing methods like __init__, add_food_item, etc.
     
-    # Fetch recipes based on the user's food items
-    def fetch_recipes(self):
-        conn = sqlite3.connect(DB_PATH)
-        cursor = conn.cursor()
-        cursor.execute("SELECT name FROM food_items")
-        food_items = [item[0] for item in cursor.fetchall()]
-        conn.close()
+#     # Fetch recipes based on the user's food items
+#     def fetch_recipes(self):
+#         conn = sqlite3.connect(DB_PATH)
+#         cursor = conn.cursor()
+#         cursor.execute("SELECT name FROM food_items")
+#         food_items = [item[0] for item in cursor.fetchall()]
+#         conn.close()
 
-        if not food_items:
-            messagebox.showinfo("No Items", "No food items in the database to base recipes on.")
-            return
+#         if not food_items:
+#             messagebox.showinfo("No Items", "No food items in the database to base recipes on.")
+#             return
 
-        ingredients = ",".join(food_items)
-        url = f"https://api.spoonacular.com/recipes/findByIngredients?apiKey={SPOONACULAR_API_KEY}&ingredients={ingredients}&number=5"
-        response = requests.get(url)
+#         ingredients = ",".join(food_items)
+#         url = f"https://api.spoonacular.com/recipes/findByIngredients?apiKey={SPOONACULAR_API_KEY}&ingredients={ingredients}&number=5"
+#         response = requests.get(url)
 
-        if response.status_code == 200:
-            recipes = response.json()
-            self.show_recipes(recipes)
-        else:
-            messagebox.showerror("API Error", "Could not retrieve recipes. Check API key and internet connection.")
+#         if response.status_code == 200:
+#             recipes = response.json()
+#             self.show_recipes(recipes)
+#         else:
+#             messagebox.showerror("API Error", "Could not retrieve recipes. Check API key and internet connection.")
 
-    # Display recipes in a new window
-    def show_recipes(self, recipes):
-        recipe_window = tk.Toplevel(self.root)
-        recipe_window.title("Recipe Recommendations")
+#     # Display recipes in a new window
+#     def show_recipes(self, recipes):
+#         recipe_window = tk.Toplevel(self.root)
+#         recipe_window.title("Recipe Recommendations")
 
-        for recipe in recipes:
-            recipe_name = recipe.get("title")
-            recipe_ingredients = ", ".join([ingredient['name'] for ingredient in recipe['usedIngredients']])
-            recipe_label = tk.Label(recipe_window, text=f"{recipe_name}\nIngredients: {recipe_ingredients}", wraplength=300)
-            recipe_label.pack(padx=10, pady=5)
+#         for recipe in recipes:
+#             recipe_name = recipe.get("title")
+#             recipe_ingredients = ", ".join([ingredient['name'] for ingredient in recipe['usedIngredients']])
+#             recipe_label = tk.Label(recipe_window, text=f"{recipe_name}\nIngredients: {recipe_ingredients}", wraplength=300)
+#             recipe_label.pack(padx=10, pady=5)
 
-# Instantiate and run your app
+# # Instantiate and run your app
