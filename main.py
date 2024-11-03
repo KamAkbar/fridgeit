@@ -1,13 +1,12 @@
 import tkinter as tk
 from tkinter import messagebox
 import sqlite3
-from datetime import datetime, timedelta
+from datetime import datetime
 import threading
 import time
 
 # Database file path
 DB_PATH = "food_expiration.db"
-
 
 # Connects to the SQLite database
 def setup_database():
@@ -20,9 +19,8 @@ def setup_database():
     conn.commit()
     conn.close()
 
-
 class FoodExpirationApp:
-    def init(self, root):
+    def __init__(self, root):  # Corrected the method name to __init__
         self.root = root
         self.root.title("Food Expiration Tracker")
 
@@ -51,8 +49,12 @@ class FoodExpirationApp:
 
     # Adds a food item to the database
     def add_food_item(self):
-        name = self.name_entry.get()
-        expiration_date = self.date_entry.get()
+        name = self.name_entry.get().strip()
+        expiration_date = self.date_entry.get().strip()
+
+        if not name or not expiration_date:
+            messagebox.showwarning("Input Error", "Both fields must be filled out.")
+            return
 
         try:
             datetime.strptime(expiration_date, "%Y-%m-%d")  # Validate date format
@@ -97,7 +99,7 @@ class FoodExpirationApp:
             if 0 <= days_left <= 3:  # Expiring within 3 days
                 self.prompt_remove_item(item_id, name, days_left)
 
-                # Prompts the user to remove an item that's close to expiration
+    # Prompts the user to remove an item that's close to expiration
     def prompt_remove_item(self, item_id, name, days_left):
         response = messagebox.askyesno(
             "Expiration Reminder",
@@ -143,7 +145,6 @@ class FoodExpirationApp:
         while True:
             self.check_expirations()
             time.sleep(24 * 60 * 60)  # Check once per day
-
 
 # Setup the database before running the app
 setup_database()
